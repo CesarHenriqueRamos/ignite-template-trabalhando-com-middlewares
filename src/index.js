@@ -10,19 +10,52 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  // ok
+  const {username} = request.headers
+  const usernameAlreadyExists = users.find((user) => user.username === username);
+  if (!usernameAlreadyExists) {
+    return response.status(400).json({ error: 'non-existent user' });
+  }
+  request.user = usernameAlreadyExists
+  return next()
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
   // Complete aqui
+  const {username} = request.headers
+  const user = users.find((user) => user.username === username);
+
+  if(!user.pro){
+     if(user.todos.length > 10){
+      return response.status(403).json({ error: 'Incompatible plan, become a Pro user' });
+     }
+  }
+  return next();
 }
 
 function checksTodoExists(request, response, next) {
   // Complete aqui
+  const {id} = request.params
+  const {username} = request.headers
+  const user = users.find((user) => user.username === username);
+  const todo = user.todos.find(todo => todo.id === id)
+
+  if (!todo) {
+    return response.status(400).json({ error: 'non-existent annotation' });
+  }
+  request.todo = todo
+  return next()
 }
 
 function findUserById(request, response, next) {
   // Complete aqui
+  const {id} = request.params
+  const usernameAlreadyExists = users.find((user) => user.id === id);
+  if (!usernameAlreadyExists) {
+    return response.status(400).json({ error: 'non-existent user' });
+  }
+  request.user = usernameAlreadyExists
+  return next()
 }
 
 app.post('/users', (request, response) => {
